@@ -107,10 +107,12 @@ dd_temp$Temperature_F <- (dd_temp$Temperature_C *9/5) + 32
 
 m_repeated <- glmmTMB(Temperature_C ~ Treatment * Time + ar1(1 + Time |Pen),
               family = gaussian(link = "identity"),
+              REML = TRUE,
               data = dd_temp)
 
 m_repeated <- glmmTMB(Temperature_F ~ Treatment * Time + ar1(1 + Time |Pen) ,
               family = gaussian(link = "identity"),
+              REML = TRUE,
               data = dd_temp)
 
 res_repeated <- simulateResiduals(m_repeated, plot = TRUE)
@@ -140,6 +142,7 @@ dd_fecal$Pen <- as.factor(dd_fecal$Pen)
 dd_fecal$Day <- as.factor(dd_fecal$Day)
 
 m_subsampling_repeated <- glmmTMB(dry_matter_perc ~ Trt * Day + ar1(1 + Day |Pig) + (1|Room/Pen),
+                                  REML = TRUE, 
                                   data = dd_fecal)
 
 res <- simulateResiduals(m_subsampling_repeated, plot = TRUE)

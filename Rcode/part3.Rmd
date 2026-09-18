@@ -29,7 +29,10 @@ head(d1)
 ```
 
 ```{r}
-m1 <- glmmTMB(severity ~ fungicide + (1|block), family = beta_family(link = "logit"), data = d1)
+m1 <- glmmTMB(severity ~ fungicide + (1|block), 
+              family = beta_family(link = "logit"), 
+              REML = TRUE,
+              data = d1)
 summary(m1)
 ```
 
@@ -45,7 +48,10 @@ emmeans(m1, ~fungicide, type = "response")
 **Beta x Gamma**
 
 ```{r}
-m1_2 <- glmmTMB(severity ~ fungicide + (1|block), family = Gamma(link = "log"), data = d1)
+m1_2 <- glmmTMB(severity ~ fungicide + (1|block), 
+                family = Gamma(link = "log"), 
+                REML = TRUE,
+                data = d1)
 res_sim1_2 <- simulateResiduals(m1_2, plot = TRUE)
 ```
 
@@ -89,7 +95,10 @@ head(d2)
 ```
 
 ```{r}
-m2 <- glmmTMB(cbind(germ, n-germ) ~ extract*gen, family = binomial(link = "logit"), data = d2)
+m2 <- glmmTMB(cbind(germ, n-germ) ~ extract*gen, 
+              family = binomial(link = "logit"), 
+              REML = TRUE,
+              data = d2)
 summary(m2)
 ```
 

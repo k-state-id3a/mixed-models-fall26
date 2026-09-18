@@ -309,6 +309,9 @@ $$\Sigma = \begin{bmatrix}
 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & \dots & \sigma^2 + \sigma^2_u \end{bmatrix}.$$
 
 
+{% include modal.html button="How does this variance-covariance matrix look like?" color="success" id="modal-rcbd-varcov" title="How does this variance-covariance matrix look like?" text=figure_content_rcbd_varcov %}
+
+
 {% include figure.html img="day2/designs_rcbd.PNG" alt="" caption="Figure 2. Schematic diagram of a Randomized Complete Block Design (RCBD)" width="100%" %}
 
 {% capture figure_content_rcbd %}
@@ -365,7 +368,7 @@ This discussion has been very controversial among applied statisticians.
 
 {% include figure.html img="day2/dixon2016.jpg" alt="" caption="Extracted from Dixon (2016)" width="100%" %}
 
-Check out [Dixon (2016).](https://newprairiepress.org/cgi/viewcontent.cgi?article=1474&context=agstatconference) 
+Check out [Dixon (2016).](../papers/2016_Dixon_ShouldBlocks.pdf) 
 
 ##### Discussion II: Should blocks be dropped if not significant?  
 
