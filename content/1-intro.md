@@ -35,8 +35,6 @@ topics: Linear models review; Fixed effects vs. random effects
 - About us: [Josefina](https://jlacasa.github.io/) and [Claudio](https://www.linkedin.com/in/claudio-dias-da-silva-jr-906432b9/).
 - About you.
 
-{% include figure.html img="day1/attendees.jpg" alt="Attendees counts" caption="Figure 1. Distribution of Departments attending this worksop" width="100%" id = "attendees" %}
-
 ## Housekeeping  
 
 - We will have relatively low proportion of R code in this workshop. 
