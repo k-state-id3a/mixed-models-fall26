@@ -1,7 +1,6 @@
 ---
 title: "part3"
 output: html_document
-date: "2025-09-14"
 ---
 
 ## Library
@@ -20,7 +19,7 @@ library(DHARMa)
 ## Example I
 
 ```{r}
-url <- "https://raw.githubusercontent.com/k-state-id3a/mixed-models-fall25/refs/heads/newpart3/data/example1_part3.csv"
+url <- "https://raw.githubusercontent.com/k-state-id3a/mixed-models-fall26/refs/heads/newpart3/data/example1_part3.csv"
 d1 <- read.csv(url)
 colnames(d1) <- c("fungicide", "block", "severity_o")
 d1 <- transform(d1, fungicide = as.factor(fungicide), block = as.factor(block))
