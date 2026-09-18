@@ -34,9 +34,6 @@ topics: Linear models review; Fixed effects vs. random effects
 
 - About us: [Josefina](https://jlacasa.github.io/) and [Claudio](https://www.linkedin.com/in/claudio-dias-da-silva-jr-906432b9/).
 - About you.
-  - Frequent responses to the registration survey.   
-  - Some knowledge of the *existence* of mixed effects models.  
-  - Mostly life sciences - often heteroscedasticity (tomorrow) and dependent observations (this workshop)!   
 
 {% include figure.html img="day1/attendees.jpg" alt="Attendees counts" caption="Figure 1. Distribution of Departments attending this worksop" width="100%" id = "attendees" %}
 
