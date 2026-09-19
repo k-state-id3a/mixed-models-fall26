@@ -1029,7 +1029,7 @@ summary(m_repeated)
 
 {% highlight text %}
 ##  Family: gaussian  ( identity )
-## Formula:          Temperature_F ~ Treatment * Time + ar1(1 + Time | Pen)
+## Formula:          Temperature_F ~ Treatment * Time + ar1(0 + Time | Pen)
 ## Data: dd_temp
 ## 
 ##      AIC      BIC   logLik deviance df.resid 
@@ -1190,7 +1190,7 @@ dd_fecal$Room <- as.factor(dd_fecal$Room)
 dd_fecal$Pen <- as.factor(dd_fecal$Pen)
 dd_fecal$Day <- as.factor(dd_fecal$Day)
 
-m_subsampling_repeated <- glmmTMB(dry_matter_perc ~ Trt * Day + ar1(1 + Day |Pig) + (1|Room/Pen),
+m_subsampling_repeated <- glmmTMB(dry_matter_perc ~ Trt * Day + ar1(0 + Day |Pig) + (1|Room/Pen),
                                   REML = TRUE,
                                   data = dd_fecal)
 
