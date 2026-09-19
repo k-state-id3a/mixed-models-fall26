@@ -127,9 +127,9 @@ Example of link functions:
 
 | Link Function | Equation | Use | Why |
 |:---|:---|:---|:---|
-| **Identity Link** | \(g(\mu) = \mu\) | Normal dist. | \(E(y)\) can take any real value \((-\infty, +\infty)\) |
-| **Logit Link** | \(g(\mu) = \log\left(\frac{\mu}{1-\mu}\right)\) | Logistic, Beta, Binomial dist. | \(E(y)\) can take values between 0 and 1. Maps \((0,1) \rightarrow (-\infty,+\infty)\) |
-| **Log Link** | \(g(\mu) = \log(\mu)\) | Poisson, Gamma dist. | \(E(y)\) can take any positive value \((\mu > 0)\) |
+| **Identity Link** | $$\(g(\mu) = \mu\)$$ | Normal dist. | $$\(E(y)\)$$ can take any real value $$\((-\infty, +\infty)\)$$ |
+| **Logit Link** | $$\(g(\mu) = \log\left(\frac{\mu}{1-\mu}\right)\)$$ | Logistic, Beta, Binomial dist. | $$\(E(y)\)$$ can take values between 0 and 1. Maps $$\((0,1) \rightarrow (-\infty,+\infty)\)$$ |
+| **Log Link** | $$\(g(\mu) = \log(\mu)\) | Poisson, Gamma dist.$$ | $$\(E(y)\)$$ can take any positive value $$\((\mu > 0)\)$$ |
 
 - In all this cases, we estimate the link function, and then obtain the parameter using the inverse $$g^{-1}(\cdot)$$.
 
