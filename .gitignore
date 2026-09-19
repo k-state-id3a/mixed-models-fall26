@@ -9,4 +9,7 @@ vendor/
 # Ignore mac files
 .DS_Store
 .Rproj.user
+<<<<<<< HEAD
 mixed-models-fall26.Rproj
+=======
+>>>>>>> a550100833d5ddcc86424401ad3b7092f12b5b44

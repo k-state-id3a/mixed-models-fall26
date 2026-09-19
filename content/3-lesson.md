@@ -6,35 +6,36 @@ topics: Non-normal data; Wrap-up
 
 ## Outline for today
 
--   **Distributions beyond the normal**  
--   **Defining your generalized linear model** 
--   **Applied examples**  
--   **Workshop wrap-up**: why mixed models are more important than ever.   
+- **Components of a GLMM**
+- **Distributions beyond the normal**
+- **Practical example: Defining your first GLMM**
+- **Workshop wrap-up**: why mixed models are more important than ever.
 
-------
+------------------------------------------------------------------------
 
 ## What are GLMMs
 
--   Generalized Linear Models are models in which we can assume different distributions for our data beyond the Normal distribution. 
--   Similar to general linear models, GLMs can also have random effects, thus, Generalized Linear Mixed Models - GLMMs.
+- Generalized Linear Models are models in which we can assume different distributions (from the exponential family members) for our data beyond the Normal distribution.
+- Similar to general linear models, GLMs can also have random effects, thus, Generalized Linear Mixed Models - GLMMs.
 
-### The structure of a GLMM
+
+### Model structure
 
 Remember that for a **LMMs**, assuming $$\mathbf{y}$$ arises from a normal distribution, we have:
 
 $$
-\mathbf{y} =\mathbf{X}\boldsymbol{\beta} + \mathbf{Z}\mathbf{u} + \boldsymbol{\varepsilon} \\ \mathbf{\begin{bmatrix} \mathbf{u} \\ \boldsymbol{\varepsilon} \end{bmatrix} \sim \begin{pmatrix}  \begin{bmatrix} 0 \\ 0 \end{bmatrix}, \begin{bmatrix} \mathbf{G} \; 0 \\ 0 \; \mathbf{R} \end{bmatrix} \end{pmatrix}}
+\mathbf{y} =\mathbf{X}\boldsymbol{\beta} + \mathbf{Z}\mathbf{u} + \boldsymbol{\varepsilon} \\ \mathbf{\begin{bmatrix} \mathbf{u} \\ \boldsymbol{\varepsilon} \end{bmatrix} \sim MVN\begin{pmatrix}  \begin{bmatrix} 0 \\ 0 \end{bmatrix}, \begin{bmatrix} \mathbf{G} \; 0 \\ 0 \; \mathbf{R} \end{bmatrix} \end{pmatrix}}
 $$
 
 In which:
 
--   $$\mathbf{X}\boldsymbol{\beta}$$ represents our fixed part of the equation, where $$\mathbf{X}$$ is a matrix informing the levels of our treatments and $$\boldsymbol{\beta}$$ a vector containing the fixed-effects parameters. 
--   $$\mathbf{Zu}$$ represents our random part, where $$\mathbf{Z}$$ is a matrix informing the levels of the random effects and $$\mathbf{u}$$ is the vector containing the random effects parameters. 
--   $$\boldsymbol{\varepsilon}$$ is the vector containing the residuals. 
--   From $$\mathbf{Zu} + \boldsymbol{\varepsilon}$$ we have: $$\mathbf{G}$$ is the variance-covariance matrix of the random effects, and $$\mathbf{R}$$ is the variance-covariance matrix of the residuals. 
-    -   $$\mathbf{G} = \boldsymbol{\sigma^2_u}\mathbf{I}$$ and $$\mathbf{R} = \boldsymbol{\sigma^2}\mathbf{I}$$, in which $$\mathbf{I}$$ is the identity matrix.
+- $$\mathbf{X}\boldsymbol{\beta}$$ represents our fixed part of the equation, where $$\mathbf{X}$$ is a matrix informing the levels of our treatments and $$\boldsymbol{\beta}$$ a vector containing the fixed-effects parameters.
+- $$\mathbf{Zu}$$ represents our random part, where $$\mathbf{Z}$$ is a matrix informing the levels of the random effects and $$\mathbf{u}$$ is the vector containing the random effects parameters.
+- $$\boldsymbol{\varepsilon}$$ is the vector containing the residuals.
+- From $$\mathbf{Zu} + \boldsymbol{\varepsilon}$$ we have: $$\mathbf{G}$$ is the variance-covariance matrix of the random effects, and $$\mathbf{R}$$ is the variance-covariance matrix of the residuals.
+  - $$\mathbf{G} = \boldsymbol{\sigma^2_u}\mathbf{I}$$ and $$\mathbf{R} = \boldsymbol{\sigma^2}\mathbf{I}$$, in which $$\mathbf{I}$$ is the identity matrix.
 
-Which is similar to:
+Similarly:
 
 $$
 \mathbf{u} \sim N(0, \mathbf{I}\sigma^2_u) \\
@@ -48,95 +49,111 @@ E(\mathbf{y}) = \mathbf{X}\boldsymbol{\beta}, \\
 Var(\mathbf{y}) = \mathbf{ZGZ' + R}
 $$
 
-We can also write this model as:
+We can also write this model using probabilistic notation:
 
 $$
-\mathbf{y} \sim N(\mathbf{X}\boldsymbol{\beta}, \; \mathbf{ZGZ' + R})
+\mathbf{y} \sim MVN(\mathbf{X}\boldsymbol{\beta}, \; \mathbf{ZGZ' + R})
 $$
 
 or:
 
 $$
-\mathbf{y} \sim N(\mathbf{X}\boldsymbol{\beta}, \; \boldsymbol{\Sigma}) \\
+\mathbf{y} \sim MVN(\mathbf{X}\boldsymbol{\beta}, \; \boldsymbol{\Sigma}) \\
 \boldsymbol{\Sigma} = \mathbf{ZGZ' + R}
 $$
 
-For **GLMMs** the structure changes based on the distribution we will assume for $$\mathbf{y}$$, but is very similar to the last notation presented. A generic definition would be:
+
+#### Marginal x Conditional notation
+
+- How are we treating our random effects?
+
+Assume:
+$$\varepsilon \sim N(0, \sigma^2) \\ u \sim N(0, \sigma_u^2)$$
+
+Marginal:
+
+- For a multivariate case, using probabilistic notation:
+$$\mathbf{y} \sim MVN(\mathbf{X}\boldsymbol{\beta}, \; \mathbf{ZGZ' + R})$$
+
+- For univariate case:
+$$y_{ij} \sim N(\mu_0 + t_i, \; \sigma_u^2 + \sigma^2)$$
+
+Here:
+$$E(y_{ij}) = \mu_0 + t_i \\ Var(y_{ij}) = \sigma_u^2 + \sigma^2$$
+
+
+Conditional:
+
+- For a multivariate case, using probabilistic notation:
+$$\mathbf{y} \vert \mathbf{u} \sim MVN(\mathbf{X}\boldsymbol{\beta} + \mathbf{Z}\mathbf{u}, \; \mathbf{R})$$
+
+- For univariate case:
+$$y_{ij} \vert u_j \sim N(\mu_0 + t_i + u_j, \; \sigma^2)$$
+
+Here:
+$$E(y_{ij} \vert u_j) = \mu_0 + t_i + u_j \\ Var(y_{ij} \vert u_j) = \sigma^2$$
+
+
+#### Structure for the GLMMs
+
+For **GLMMs** the structure changes based on the distribution we will assume for $$\mathbf{y}$$, but is very similar to the last notation presented, except that we will use the **conditional distribution**. A generic definition would be:
 
 $$
-\mathbf{y|u} \sim P(\boldsymbol{\mu}, \; \phi)
+y|u \sim P(\mu, \; \phi)
 $$
 
 Where:
 
-- $$\mathbf{y} \vert mathbf{u}$$ is the conditional distribution of the data $$y$$, given any random effect $$u$$, 
-- $$\boldsymbol{\mu}$$ is the expected value of $$\mathbf{y}$$, 
-- $$\phi$$ is the dispersion parameter of the distribution, 
-- the linear predictor of $$\mu$$ is $$g(\mu) = \eta = \mathbf{X}\boldsymbol{\beta} + Zu$$, where $$g(\cdot)$$ is the link function that is applied to the expected value.
+- $$y \vert u$$ is the conditional distribution of the data $$y$$, given any random effect $$u$$,
+- $$\mu$$ is the expected value of $$y$$,
+- $$\phi$$ is the dispersion parameter of the distribution,
+- the linear predictor of $$\boldsymbol{\mu}$$ is $$g(\boldsymbol{\mu}) = \boldsymbol{\eta} = \mathbf{X}\boldsymbol{\beta} + \mathbf{Z}\mathbf{u}$$, where $$g(\cdot)$$ is the link function that is **applied to the expected value**.
 
 
 ### Components of GLMMs
+
+- GLMMs are composed of three interconected pieces: The link function, the linear predictor, and the distributional assumption.
+
 
 #### Link Functions
 
 Our linear predictor $$\mathbf{X}\boldsymbol{\beta}$$ can produce all possible values in the y-axis of a plot, from $$- \; \infty$$ to $$+ \; \infty$$ depending on the value of the predictor variable. A link function links the linear predictor and the distribution assumed for the data $$\mathbf{y}$$.
 
-In the **link scale**, the mean of $$\mathbf{y}$$ respect linearity of the linear predictor. In the **response scale**, the mean $$\mu$$ is back transformed by the inverse link and respects the support of the distribution.
+In the **link scale**, the mean of $$\mathbf{y}$$ respect linearity of the linear predictor. In the **response scale**, the mean of $$\mathbf{y}$$ is back transformed by the inverse link and respects the support of the distribution.
 
-The link function is applied to the expected value ($$E(\mathbf{y})$$), and not to the observations. Transformation of the observations also effect the error, while link functions only affect the parameters controlling the expected value.
+The link function is applied to the expected value ($$E(\mathbf{y}) = \boldsymbol{\mu}$$), and not to the observations. Transformation of the observations also effect the error, while link functions only concern the predictor behind the expected value.
 
 Example of link functions:
 
-<table>
-  <thead>
-    <tr style="background-color: #f2f2f2;">
-      <th>Link Function</th>
-      <th>Equation</th>
-      <th>Use</th>
-      <th>Why</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>Identity Link</strong></td>
-      <td>\(g(\mu) = \mu\)</td>
-      <td>Normal dist.</td>
-      <td>\(E(y)\) can take any real value \((-\infty, \; +\infty)\)</td>
-    </tr>
-    <tr>
-      <td><strong>Logit Link</strong></td>
-      <td>\(g(\mu) = \log\left(\frac{\mu}{1-\mu}\right)\)</td>
-      <td>Logistic, Beta, Binomial dist.</td>
-      <td>\(E(y)\) can take any values between 0 and 1. Maps \((0, \; 1) \rightarrow (-\infty, \; +\infty)\)</td>
-    </tr>
-    <tr>
-      <td><strong>Log Link</strong></td>
-      <td>\(g(\mu) = \log(\mu)\)</td>
-      <td>Poisson, Gamma dist.</td>
-      <td>
-        \(E(y)\) can take any positive values \((\mu > 0)\)
-      </td>
-    </tr>
-  </tbody>
-</table>
+| Link Function | Equation | Use | Why |
+|:---|:---|:---|:---|
+| **Identity Link** | $$g(\mu) = \mu$$ | Normal dist. | $$E(y)$$ can take any real value $$(-\infty, +\infty)$$ |
+| **Logit Link** | $$g(\mu) = \log\left(\frac{\mu}{1-\mu}\right)$$ | Logistic, Beta, Binomial dist. | $$E(y)$$ can take values between 0 and 1. Maps $$(0,1) \rightarrow (-\infty,+\infty)$$ |
+| **Log Link** | $$g(\mu) = \log(\mu)$$ | Poisson, Gamma dist. | $$E(y)$$ can take any positive value $$(\mu > 0)$$ |
 
-**Log-transformations**  
 
-- Changes in the structure of the residuals: from normal to log-normal.  
-- What is the target variable we aim to study?  
+- In all this cases, we estimate the link function, and then obtain the parameter using the inverse $$g^{-1}(\cdot)$$.
+
+- No one-size-fits-all recommendation.
+
+
+**As a contrast example: Log transformation of y would:**
+
+- Change the structure of the residuals: from normal to log-normal.\
+- Change the target varaible from $$\mathbf{y}$$ to $$log(\mathbf{y})$$ \
 - *If the data are not Gaussian, we must make them “act Gaussian”, essentially amounts to the modeling version of the “when you have a hammer, try to make every problem look like a nail”* ([Stroup et al., 2024](https://www.routledge.com/Generalized-Linear-Mixed-Models-Modern-Concepts-Methods-and-Applications/Stroup-Ptukhina-Garai/p/book/9781498755566?srsltid=AfmBOop80SBSwTFMCIzkiTtYe-5uir_Xnw2KVZxa1oXb4LJWrLRx0Wwq), page 8).
-- No one-size-fits-all recommendation.   
+
 
 #### Distributional assumption for the data
 
 GLMMs support different distributions from the exponential family. Distributions from the exponential family share common structure, but are relatively different among themselves.
 
--   **What is an assumption?**: Something you take as true about your data or about the process that generated it!
+- **What is an assumption?**: Something you take as true about your data or about the process that generated it.
 
 Important distributions to know are:
 
--   **For continuous data**: Normal, t, Gamma, Beta.
--   **For discrete data**: Binomial, Poisson, Negative Binomial.
+- **For continuous data**: Normal, t, Gamma, Beta.
+- **For discrete data**: Binomial, Poisson, Negative Binomial.
 
 #### **Normal distribution**
 
@@ -159,7 +176,7 @@ $$
 
 - Type of variable: Continuous
 - Link: Identity, $$\eta = \mu$$
-- Mean and variance unrelated. 
+- Mean and variance unrelated.
 
 {% include figure.html img="day3/normaldist.png" alt="" caption="" width="80%" %}
 
@@ -175,10 +192,9 @@ $$E(y) = \begin{cases}
 \end{cases}$$
 
 $$Var(y) = \begin{cases}
-    \frac{v}{v-2} \sigma^2, & \text{if } \nu > 2 \\
+    \frac{\nu}{\nu-2} \sigma^2, & \text{if } \nu > 2 \\
     \text{undefined}, & \text{if } \text{else}
 \end{cases}$$
-
 
 **Support:**
 
@@ -190,7 +206,7 @@ $$
 
 - Type of variable: Continuous
 - Link: Identity, $$\eta = \mu$$
-- Mean and variance unrelated. 
+- Mean and variance unrelated.
 
 {% include figure.html img="day3/tdist.png" alt="" caption="" width="80%" %}
 
@@ -265,13 +281,13 @@ $$
 y \in (0, 1, 2, ..., +\infty)
 $$
 
--   Model the number of events occurring in a fixed interval of time/space given a rate of occurrence ($$\lambda$$).
+- Model the number of events occurring in a fixed interval of time/space given a rate of occurrence ($$\lambda$$).
 
 **Characteristics of the distribution**
 
 - Type of variable: Discrete count
 - Link: Log, $$\eta = log(\lambda)$$
-- If $$y \sim Pois(\mu, \phi)$$:
+- If $$y \sim Pois(\lambda)$$:
   - Mean: $$\lambda$$
   - Var: $$\lambda$$
 
@@ -296,26 +312,25 @@ n \in (1, 2, ..., +\infty) \\
 p \in (0, 1)
 $$
 
--   Model the number of successes in a fixed number of independent trials ($$n$$) with a given probability of success ($$p$$).
+- Model the number of successes in a fixed number of independent trials ($$n$$) with a given probability of success ($$p$$).
 
 **Characteristics of the distribution**
 
-- Type of variable: Discrete proportion
-- Link: Logit or probit, $$\eta = log(\frac{\pi}{1-\pi})$$ or $$\eta = \Phi^{-1}(\pi)$$
-- If $$y \sim Binomial(\mu, \phi)$$:
-  - Mean: $$\pi = \frac{\mu}{N}$$
-  - Var: $$N\pi(1-\pi)$$
+- Type of variable: Discrete count or discrete proportion
+- Link: Logit or probit, $$\eta = log(\frac{p}{1-p})$$ or $$\eta = \Phi^{-1}(p)$$
+- If $$y \sim Binomial(n, p)$$:
+  - Mean: $$np$$ for y | $$p$$ for $$\frac{y}{n}$$
+  - Var: $$np(1-p)$$ for y | $$\frac{p(1-p)}{n}$$ for $$\frac{y}{n}$$
 
 {% include figure.html img="day3/binomialdist.png" alt="" caption="" width="80%" %}
 
-
 ## Checkpoint:
--   **Distributions beyond the normal**  
--   **Defining your generalized linear model**
--   **Practical example**
 
-------
+- **Components of a GLMM** OK
+- **Distributions beyond the normal** OK
+- **Practical example: Defining your first GLMM**
 
+------------------------------------------------------------------------
 
 ## Working with GLMMs
 
@@ -336,10 +351,9 @@ library(DHARMa) # Model check
 
 ## Example I - Disease Severity
 
-In this example we will evaluate disease severity. The data arises from a randomized complete block design experiment (RCBD) to test fungicide efficacy against yellow rust on wheat. The main response variable is disease severity. Severity refers to how much a specific organ is affected by a given disease. In this case it refers to the leaf area covered by yellow rust lesions, also know as pustules.
+The data from this example arises from a field experiment to test fungicide efficacy to manage a wheat disease. The experiment was a randomized complete block design (RCBD) with a one-way treatment structure. The response variable is the propotion of the leaf area affected by the disease.
 
-{% include figure.html img="day3/Rust.jpg" alt="" caption="" width="80%" %}
-**Data**
+{% include figure.html img="day3/Rust.jpg" alt="" caption="" width="80%" %} **Data**
 
 ``` r
 head(d1)
@@ -359,13 +373,13 @@ head(d1)
 
 $$ y \sim Beta(\mu, \; \phi) $$
 
--   Why?
+- Why?
 
-    -   Severity is a percentage: 0 - 100%, in proportion: 0 - 1.
+  - The response is a proportion: [0, 1].
 
-    -   The support from the Beta distribution perfectly matches our response variable.
+  - The support from the Beta distribution perfectly matches our response variable.
 
-    -   Recall the support for the Beta distribution:
+  - Recall the support for the Beta distribution:
 
 $$
 y \in (0, \; 1)
@@ -373,34 +387,36 @@ $$
 
 2.  Define a linear predictor $$\eta$$.
 
-$$ \eta_{ij} = \mu_0 + t_i + u_j $$
+$$ \eta_{ij} = g(\mu_{ij}) = \eta_0 + t_i + u_j $$
 
--   Where:
+- Where:
 
-    -   $$\mu_0$$ represents the overall/gran mean.
-    -   $$t_i$$ is the parameter for the effect of treatment, in this case, fungicides - **Fixed effect.**
-    -   $$u_j$$ is the parameter for the effect of block - **Random effect.**
+  - $$\eta_0$$ represents the overall mean.
+  - $$t_i$$ is the parameter for the effect of treatment, in this case, fungicides - **Fixed effect.**
+  - $$u_j$$ is the parameter for the effect of block - **Random effect.**
 
 3.  Define the link function that connects $$E(y)$$ of the assumed distribution and the linear predictor $$\eta$$.
 
 **Logit link**
 
-$$ g(\mu) = \eta = logit(\mu)$$
+$$ g(\mu) = \eta = logit(\mu) = log(\frac{\mu}{1-\mu}$$
 
--   Why?
+$$g^{-1}(\eta) = \mu = \frac{1}{1+e^{-\eta}}$$
 
-    -   Logit links $$(-\infty, \; +\infty)$$ to $$(0, \; 1)$$, that is our desired scale.
+- Why?
+
+  - Logit links $$(-\infty, \; +\infty)$$ to $$(0, \; 1)$$.
 
 **Model**
 
 $$
-y_{ij}|u_j \sim Beta(\mu_{ij}, \; \phi) \\ logit(\mu_{ij}) = \eta_{ij} = \mu_0 + t_i + u_j \\ u_j \sim N(0, \sigma^2_u)
+y_{ij}|u_j \sim Beta(\mu_{ij}, \; \phi) \\ logit(\mu_{ij}) = \eta_{ij} = \eta_0 + t_i + u_j \\ u_j \sim N(0, \sigma^2_u)
 $$
 
 **Fitting the model**
 
 ``` r
-m1 <- glmmTMB(severity ~ fungicide + (1|block), family = beta_family(link = "logit"), data = d1)
+m1 <- glmmTMB(severity ~ fungicide + (1|block), family = beta_family(link = "logit"), REML = TRUE, data = d1)
 summary(m1)
 ```
 
@@ -457,23 +473,23 @@ For general linear mixed models our residuals are assumed to be normally distrib
 
 **What is each test doing?**
 
--   QQ-Plot
+- QQ-Plot
 
-    -   Compare the quantiles[^1] of two distributions, if they are similar, we expect them to fall on a one to one diagonal line. In this case, in the y-axis we have the quantiles of the simulated residuals and in the x-axis the quantiles of a standard uniform distribution.
+  - Compare the quantiles[^1] of two distributions, if they are similar, we expect them to fall on a one to one diagonal line. In this case, in the y-axis we have the quantiles of the simulated residuals and in the x-axis the quantiles of a standard uniform distribution.
 
-    -   Kolmogorov-Smirnov test: Test for uniformity against a uniform distribution - $$Uniform(0, \; 1)$$.
+  - Kolmogorov-Smirnov test: Test for uniformity against a uniform distribution - $$Uniform(0, \; 1)$$.
 
-    -   Dispersion test: Variance in the observations vs. Variance on the simulations.
+  - Dispersion test: Variance in the observations vs. Variance on the simulations.
 
-    -   Outlier test: Residual values of 0 or 1. Test if the number of outliers is appropriate to the size of the data. Does not quantify the amount of outliers.
+  - Outlier test: Residual values of 0 or 1. Test if the number of outliers is appropriate to the size of the data. Does not quantify the amount of outliers.
 
--   Residual vs Predicted
+- Residual vs Predicted
 
-    -   Show whether we have homocedasticity of the variances (constant variance across predicted values) or not. Usually, if higher or lower predicted values have higher or lower variance, the plot will present a "funnel" shape. Ideally the plot is a random scatter of points.
+  - Show whether we have homocedasticity of the variances (constant variance across predicted values) or not. Usually, if higher or lower predicted values have higher or lower variance, the plot will present a "funnel" shape. Ideally the plot is a random scatter of points.
 
-    -   Fit smoothed splines in three points of the quantile residuals, 0.25, 0.50, and 0.75. Test whether these lines are flat or have trends. For a random scatter, we do not expect to see trends at any of these points, this would indicate heterocedasticity.
+  - Fit smoothed splines in three points of the quantile residuals, 0.25, 0.50, and 0.75. Test whether these lines are flat or have trends. For a random scatter, we do not expect to see trends at any of these points, this would indicate heterocedasticity.
 
-    -   It also indicated when outliers are detected by producing a red asterisk.
+  - It also indicated when outliers are detected by producing a red asterisk.
 
 [^1]: Quantiles divide a dataset into equal-sized subsets, helping to understand more about the distribution of the data.
 
@@ -523,19 +539,11 @@ emmeans(m1, ~fungicide, type = "response")
 Let's check Gamma!
 
 ``` r
-m1_2 <- glmmTMB(severity_o ~ fungicide + (1|block), family = Gamma(link = "log"), data = d1)
+m1_2 <- glmmTMB(severity_o ~ fungicide + (1|block), family = Gamma(link = "log"), REML = TRUE, data = d1)
 res_sim1_2 <- simulateResiduals(m1_2, plot = TRUE)
 ```
 
 {% include figure.html img="day3/residuals_m1_2.png" alt="" caption="" width="80%" %}
-
-{% include figure.html img="day3/multcomp_gammaxbeta.png" alt="" caption="" width="80%" %}
-
-**Recall:**
-
--   Gamma - $$Var(y) = \phi\mu^2$$
-
--   Beta - $$Var(y) = \frac{\mu(1-\mu)}{1+\phi}$$
 
 **Dispersion on the Beta model**
 
@@ -557,9 +565,20 @@ Signs of underdispersion
 
 **Dispersion:** How spread out the data are around their mean - Relationship between the variance and the mean assumed by the distribution in the GLMM.
 
--   Underdispersion: The dispersion in the observed data is lower than the one expected by the model
+- Underdispersion: The dispersion in the observed data is lower than the one expected by the model
 
--   Overdispersion: The dispersion in the observed data is higher than the one expected by the model
+- Overdispersion: The dispersion in the observed data is higher than the one expected by the model
+
+Comparatively:
+
+{% include figure.html img="day3/multcomp_gammaxbeta.png" alt="" caption="" width="80%" %}
+
+**Recall:**
+
+- Gamma - $$Var(y) = \phi\mu^2$$
+
+- Beta - $$Var(y) = \frac{\mu(1-\mu)}{1+\phi}$$
+
 
 ## Example 2 - Seed germination
 
@@ -586,11 +605,11 @@ head(d2)
 
 $$ y \sim Binomial(n, \; p) $$
 
--   Why?
+- Why?
 
-    -   We have the number of trials $$n$$
-    -   For each trial we have the number of successes $$germ$$
-    -   Remember the support for the Binomial distribution:
+  - We have the number of trials $$n$$
+  - For each trial we have the number of successes $$germ$$
+  - Remember the support for the Binomial distribution:
 
 $$ y \in (1, 2, ..., n) $$
 
@@ -598,31 +617,31 @@ $$ y \in (1, 2, ..., n) $$
 
 $$ \eta_{ij} = \mu_0 + ex_i + gen_j + (ex \times gen)_{ij}$$
 
--   Where:
+- Where:
 
-    -   $$\mu_0$$ represents the overall/gran mean.
-    -   $$ex_i$$ is the parameter for the effect of extract - **Fixed effect.**
-    -   $$gen_j$$ is the parameter for the effect of dilution - **Fixed effect.**
-    -   $$(ex \times gen)_{ij}$$ is the parameter for the effect of the interaction between the extract and the dilution.
+  - $$\mu_0$$ represents the overall/gran mean.
+  - $$ex_i$$ is the parameter for the effect of extract - **Fixed effect.**
+  - $$gen_j$$ is the parameter for the effect of dilution - **Fixed effect.**
+  - $$(ex \times gen)_{ij}$$ is the parameter for the effect of the interaction between the extract and the dilution.
 
-3.  Define the link function that connects $$E(y)$$ of the assume distribution and the linear predictor $$\eta$$.
+3.  Define the link function that connects $$E(y)$$ of the assumed distribution and the linear predictor $$\eta$$.
 
 **Logit link**
 
 $$ g(p) = \eta = logit(p)$$
 
--   Why?
+- Why?
 
-    -   Logit links $$(-\infty, \; +\infty)$$ to $$(0, \; 1)$$, that is our desired scale.
+  - Logit links $$(-\infty, \; +\infty)$$ to $$(0, \; 1)$$, that is our desired scale - The linear predictor is on $$p$$!
 
 **Model**
 
-$$ y_{ij}|u_j \sim Binomial(n, \; p) \\ logit(p) = \eta_{ij} = \mu_0 + t_i + u_j \\ u_j \sim N(0, \sigma^2_u) $$
+$$ y_{ij} \sim Binomial(n, \; p) \\ logit(p) = \eta_{ij} = \mu_0 + ex_i + gen_j + (ex \times gen)_{ij} $$
 
 **Fitting the model**
 
 ``` r
-m2 <- glmmTMB(cbind(germ, n-germ) ~ extract*gen, family = binomial(link = "logit"), data = d2)
+m2 <- glmmTMB(cbind(germ, n-germ) ~ extract*gen, family = binomial(link = "logit"), REML = TRUE, data = d2)
 summary(m2)
 ```
 
@@ -644,36 +663,6 @@ summary(m2)
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
-
--   Different ways to fit the model with Binomial distribution -- depends on what you have.
-
-    -   **Important point:** Remember what we are modeling - Probability of success: $$p$$.
-    -   For **Binomial distribution:**
-        -   **Case 1:** $$y$$ = Counts of success with know trials - Success and Failures = (success, trials - success).
-        -   **Case 2:** $$y$$ = Counts of successes with weights - success/trials and weights = trials.
-            -   Only if proportions come from counts!
-        -   **Case 3:** A special case: $$y$$ = Binary outcomes (0/1 per observation) - Binomial with n = 1 - **Logistic regression**.
-    -   For **Beta distribution**:
-        -   **Case 4:** $$y$$ = Proportions not from counts (between 0 and 1) - No trial number, proportion only
-            -   Do not use Binomial distribution here!
-
-``` r
-# Case 1
-glmmTMB(cbind(germ, n-germ) ~ extract*gen, family = binomial(link = "logit"), data = data)
-
-# Case 2
-glmmTMB(germ/n ~ extract*gen, family = binomial(link = "logit"), weights = n, data = data)
-
-# Case 3 - If germinated = yes (1) / no (0)
-glmmTMB(germinated ~ extract*gen, family = binomial(link = "logit"), data = data)
-
-# Case 4 - From example 1 - Severity: Proportion of area damaged by disease
-glmmTMB(severity ~ fungicide + (1|block), family = beta_family(link = "logit"), data = data)
-```
-
-For the logistic regression:
-
-{% include figure.html img="day3/logistic.png" alt="" caption="" width="80%" %}
 
 **Checking the model**
 
@@ -718,35 +707,70 @@ emmeans(m2, ~extract*gen, type = "response")
 ## Intervals are back-transformed from the logit scale
 ```
 
-------------
+**Different ways to fit a model with a Binomial distribution**
 
-# Workshop wrapup - Hierarchical models
+- Depends on how the response is recorded ($$y$$):
+
+  - **Important point:** Remember what we are modeling - Probability of success: $$p$$.
+  - For **Binomial distribution:**
+    - **Case 1:** $$y$$ = Number of successes and failures -> success and trials - success.
+      - Example: In a pot with 100 plants, count the number of germinated.
+    - **Case 2:** $$y$$ = Proportion + Number of trials -> successes/trials and weights = trials.
+      - Appropriate only when the proportions come from counts and the number of trials is known.
+      - Example: For each pot, number of germinated plants in the pot/total number of plants in the pot, and weight is the total number of plants.
+    - **Case 3:** $$y$$ = Binary outcomes -> 0 or 1 per observation.
+      - Each observation is a Bernoulli trial - $$y_i \sim Bernoulli(p_i) \equiv Binomial(1, p_i)$$.
+      - Example: Each pot has one plant, and then you have germinated vs non-germinated.
+  - For **Beta distribution:**
+    - **Case 4:** $$y$$ = Continuous proportions in (0, 1), not generated as successes out of a known number of trials.
+      - There is no denominator $$n_i$$.
+      - A Beta regression may be appropriate.
+
+- Notice that **cases 1** and **2** have the same information, but it is provided in different ways to the model.
+
+``` r
+# Case 1
+glmmTMB(cbind(germ, n-germ) ~ extract*gen, family = binomial(link = "logit"), data = data)
+
+# Case 2
+glmmTMB(germ/n ~ extract*gen, family = binomial(link = "logit"), weights = n, data = data)
+
+# Case 3 - If germinated = yes (1) / no (0)
+glmmTMB(germinated ~ extract*gen, family = binomial(link = "logit"), data = data)
+
+# Case 4 - From example 1 - Severity: Proportion of area damaged by disease
+glmmTMB(severity ~ fungicide + (1|block), family = beta_family(link = "logit"), data = data)
+```
+
+**Binomial regression with logit link is called logistic regression:**
+
+- $$p$$ is bounded between 0 and 1
+
+- The logit link looks like:
+$$\eta_i = logit(p_i) = log(\frac{p_i}{1-p_i}) = \eta_0 + t_i$$
+
+- And the inverse logit looks like:
+$$p_i = logit^-1(\eta_i) = \frac{1}{1+e^{-\eta_i}} = \frac{1}{1+e^{-(\eta_0 + t_i)}}$$
+
+  - Which is the logistic equation!
+  - In the response scale, the inverse logit produces the characteristic sigmoid curve.
+
+------------------------------------------------------------------------
+
+# Workshop wrap-up - Hierarchical models
 
 **Why are mixed models sometimes called 'hierarchical' or 'multilevel' models?**
 
-What is an hierarchical model?
+Hierarchical model: Parameters or observations are organized into levels.
 
-$$ y_{ij}|u_j \sim N(\mu_{ij}, \; \sigma^2) \\ \mu_{ij} = \eta_{ij} = \mu_0 + t_i + u_j \\ u_j \sim N(0, \sigma^2_u) $$
+- For observations: Block -> Plot within block -> Plant within a plot.
+  - Observations grouped at different levels -> The model accounts for variability associated with each level!
 
-**Data model:** The conditional distribution we are assuming for $$y$$.
+- For parameters: $$y_i \vert \u_j \sim N(\mu_0 + t_i + u_j, \; \sigma^2)$$ and $$u_j \sim N(0, \; \sgima_u^2)$$.
 
-$$
-y_{ij}|u_j \sim N(\mu_{ij}, \; \sigma^2)
-$$
+In mixed models, both can happen at the same time.
 
-**Process model:** The functions that shapes the expected value/mean $$\mu$$, and the link function connecting it to the boundaries of the assumed distribution - Processes generating the data.
-
-$$
-\mu_{ij} = \eta_{ij} = \mu_0 + t_i + u_j
-$$
-
-**Parameter model:** The random effects structure, the distribution of the random effects that capture the variation among groups.
-
-$$
-u_j \sim N(0, \; \sigma_u^2)
-$$
-
-**But what else is in here?**
+**Let us see an example:**
 
 Let's consider a split-plot design example: Stratification of random effects - Different levels structured
 
@@ -761,50 +785,39 @@ $$
 
 Where:
 
--   $$\mu_0$$ is the overall mean.
--   $$f_i$$ is the fixed effect of fungicide applied to the whole plot.
--   $$v_j$$ is the fixed effect of variety applied to the subplot level.
--   $$u_k$$ is the random effect of the block.
--   $$w_l$$ is the random effect of the whole plot level, that comes from $$u_k*f_i$$.
--   The subplot level is nested with residuals, which is parametrized by $$\sigma^2$$.
+- $$\mu_0$$ is the overall mean.
+- $$f_i$$ is the fixed effect of fungicide applied to the whole plot.
+- $$v_j$$ is the fixed effect of variety applied to the subplot level.
+- $$u_k$$ is the random effect of the block.
+- $$w_l$$ is the random effect of the whole plot level, that comes from $$u_k*f_i$$.
+- The subplot level is nested with residuals, which is parametrized by $$\sigma^2$$.
 
 {% include figure.html img="day3/hierarchical2.jpg" alt="" caption="" width="80%" %}
 
-### Major benefits we get from mixed models   
+### Major benefits we get from mixed models
 
-- Information is **shared** across groups  
-- More robust under unbalanced scenarios  
-- Very helpful to handle missing data  
-- No need to average across observations - information is preserved! 
+- Information is **shared** across groups\
+- More robust under unbalanced scenarios\
+- Very helpful to handle missing data\
+- No need to average across observations - information is preserved!
 
->I want to convince the reader of something that appears unreasonable: 
-*multilevel regression deserves to be the default form of regression.* 
-Papers that do not use multilevel models should have to justify 
-not using a multilevel approach. Certainly some data and contexts do
-not need the multilevel treatment. But most contemporary studies in the social and natural
-sciences, whether experimental or not, would benefit from it. Perhaps the most important
-reason is that even well-controlled treatments interact with unmeasured aspects 
-of the individuals, groups, or populations studied. 
-This leads to variation in treatment effects, in which individuals or groups vary
-in how they respond to the same circumstance. Multilevel models attempt to quantify
-the extent of this variation, as well as identify which units in the data
-responded in which ways.  
+> I want to convince the reader of something that appears unreasonable: *multilevel regression deserves to be the default form of regression.* Papers that do not use multilevel models should have to justify not using a multilevel approach. Certainly some data and contexts do not need the multilevel treatment. But most contemporary studies in the social and natural sciences, whether experimental or not, would benefit from it. Perhaps the most important reason is that even well-controlled treatments interact with unmeasured aspects of the individuals, groups, or populations studied. This leads to variation in treatment effects, in which individuals or groups vary in how they respond to the same circumstance. Multilevel models attempt to quantify the extent of this variation, as well as identify which units in the data responded in which ways.
 >
---[Statistical Rethinking, Richard McElreath](https://civil.colorado.edu/~balajir/CVEN6833/bayes-resources/RM-StatRethink-Bayes.pdf).
+> --[Statistical Rethinking, Richard McElreath](https://civil.colorado.edu/~balajir/CVEN6833/bayes-resources/RM-StatRethink-Bayes.pdf).
 
 [[Also see McEreath's blog post](https://elevanth.org/blog/2017/08/24/multilevel-regression-as-default/)]
 
-------
+------------------------------------------------------------------------
 
-## What's next  
+## What's next
 
-- Check out the books in the [Resources](5-resources) tab. 
-- We will be repeating this workshop in the future! Tell your friends and family!  
-- Claudio will be teaching a workshop on applied Bayesian modeling next Spring (2026).  
-- Josefina will be teaching STAT 720 next Summer (2026) and STAT 870 next Fall. 
-- Feel free to reach out with questions/concerns/more advanced questions.  
-- Please answer this [survey](https://forms.gle/9wBmYvzMC1C3hdmT9) to help us improve future editions of the same workshop/create a follow-up based on demand. 
+- Check out the books in the [Resources](5-resources) tab.
+- We will be repeating this workshop in the future! Tell your friends and family!\
+- Claudio will be teaching a workshop on applied Bayesian modeling next Spring (2026).\
+- Josefina will be teaching STAT 720 next Summer (2026) and STAT 870 next Fall.
+- Feel free to reach out with questions/concerns/more advanced questions.\
+- Please answer this [survey](https://forms.gle/9wBmYvzMC1C3hdmT9) to help us improve future editions of the same workshop/create a follow-up based on demand.
 
-------
+------------------------------------------------------------------------
 
-**References** 
+**References**
