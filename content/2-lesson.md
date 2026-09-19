@@ -1000,14 +1000,14 @@ dd_temp$Pen <- as.factor(dd_temp$Pen)
 dd_temp$Time <- as.factor(dd_temp$Time)
 dd_temp$Temperature_F <- (dd_temp$Temperature_C *9/5) + 32  
 
-m_repeated <- glmmTMB(Temperature_C ~ Treatment * Time + ar1(1 + Time |Pen),
+m_repeated <- glmmTMB(Temperature_C ~ Treatment * Time + ar1(0 + Time |Pen),
               REML = TRUE,
               family = gaussian(link = "identity"),
               data = dd_temp)
 {% endhighlight %}
 
 {% highlight r %}
-m_repeated <- glmmTMB(Temperature_F ~ Treatment * Time + ar1(1 + Time |Pen) ,
+m_repeated <- glmmTMB(Temperature_F ~ Treatment * Time + ar1(0 + Time |Pen) ,
               REML = TRUE,
               family = gaussian(link = "identity"),
               data = dd_temp)
