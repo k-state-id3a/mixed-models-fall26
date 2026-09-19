@@ -60,7 +60,7 @@ library(latex2exp)
 
 ## Figure 1 - attendees 
 
-```{r }
+```{r eval=FALSE, include=FALSE}
 d <- read.csv("mixedmodels.csv") %>% 
   mutate(Unit.or.department.at.K.State =
            str_replace(Unit.or.department.at.K.State, "Department of ", ""))
@@ -126,7 +126,7 @@ df_fig <- expand.grid(
   Total_N = 0:max(df_n_ss$Total_N),
   sy = unique(df_n_ss$sy),
   Block = 1:4)
-df_fig$yhat <- predict(m, newdata = df_fig)
+df_fig$yhat <- predict(m1, newdata = df_fig)
 
 
 df_n_ss %>% 
@@ -314,6 +314,7 @@ as.data.frame(mg_means_fixed$emmeans) %>%
 ## Figure 9 -- shrinkage: blocks fixed/random
 
 ```{r}
+
 data.frame(b0_j = c(as.vector(getME(m2, "b")), as.data.frame(emmeans(m2_fixed, ~sy, at = list(Total_N = 0)))$emmean - mean(as.data.frame(emmeans(m2_fixed, ~sy, at = list(Total_N = 0)))$emmean)), 
            model = rep(c("random", "fixed"), each = 5)) %>% 
   ggplot(aes(x = b0_j , y = 0))+
