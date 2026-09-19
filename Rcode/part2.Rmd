@@ -31,7 +31,7 @@ dat %>%
   ggplot(aes(gen, yield))+
   geom_boxplot()
 
-m_rcbd <- glmmTMB(yield ~ gen + (1|rep), data = dat)
+m_rcbd <- glmmTMB(yield ~ gen + (1|rep), REML = TRUE, data = dat)
 
 simulateResiduals(m_rcbd, plot = TRUE)
 ```
@@ -50,7 +50,8 @@ cld(marginal_means,
 ```
 
 ```{r}
-m_rcbd_fixed <- glmmTMB(yield ~ gen + rep, data = dat)
+m_rcbd_fixed <- glmmTMB(yield ~ gen + rep, 
+                        data = dat)
 marginal_means_fixed <- emmeans(m_rcbd_fixed, ~gen)
 
 
@@ -154,4 +155,5 @@ cld(marginal_means_feces,
     adjust = "sidak", 
     Letters = letters)
 ```
+
 
