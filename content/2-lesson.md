@@ -679,7 +679,7 @@ dat <- omer.sorghum
 dat <- dat %>% 
   filter(env == "E3")
 
-m_rcbd <- glmmTMB(yield ~ gen + (1|rep), data = dat)
+m_rcbd <- glmmTMB(yield ~ gen + (1|rep), REML = TRUE, data = dat)
 
 </code>
     </pre>
@@ -695,8 +695,8 @@ m_rcbd <- glmmTMB(yield ~ gen + (1|rep), data = dat)
 ## 
 ## Conditional model:
 ##  Groups   Name        Std.Dev.
-##  rep      (Intercept)  46.69  
-##  Residual             138.64  
+##  rep      (Intercept)  5.249e-07  
+##  Residual             1.689e+02  
 ## 
 ## Number of obs: 72 / Conditional model: rep, 4
 ## 
@@ -831,7 +831,7 @@ $$\mathbf{Z} = \begin{array}{cc}
 dat <- yates.oats
 dat$nf <- factor(dat$nitro)
 
-m_splitplot <- glmmTMB(yield ~ gen*nf + (1|block/gen), data = dat)
+m_splitplot <- glmmTMB(yield ~ gen*nf + (1|block/gen), REML = TRUE, data = dat)
 
 summary(m_splitplot)
 {% endhighlight %}
@@ -850,27 +850,27 @@ summary(m_splitplot)
 ## 
 ## Conditional model:
 ##  Groups    Name        Variance Std.Dev.
-##  gen:block (Intercept)  88.38    9.401  
-##  block     (Intercept) 178.73   13.369  
-##  Residual              147.57   12.148  
+##  gen:block (Intercept)  106.1    10.30   
+##  block     (Intercept) 214.5    14.65  
+##  Residual              177.1    13.31  
 ## Number of obs: 72, groups:  gen:block, 18; block, 6
 ## 
 ## Dispersion estimate for gaussian family (sigma^2):  148 
 ## 
 ## Conditional model:
-##              Estimate Std. Error z value Pr(>|z|)    
-## (Intercept) 103.97216    6.06204  17.151  < 2e-16 ***
-## gen1          0.52775    3.73090   0.141   0.8875    
-## gen2          5.81948    3.73090   1.560   0.1188    
-## nf1         -24.58331    2.47966  -9.914  < 2e-16 ***
-## nf2          -5.08333    2.47966  -2.050   0.0404 *  
-## nf3          10.24998    2.47966   4.134 3.57e-05 ***
-## gen1:nf1      0.08333    3.50677   0.024   0.9810    
-## gen2:nf1      1.45833    3.50677   0.416   0.6775    
-## gen1:nf2     -0.91668    3.50677  -0.261   0.7938    
-## gen2:nf2      3.79168    3.50677   1.081   0.2796    
-## gen1:nf3     -0.08331    3.50677  -0.024   0.9810    
-## gen2:nf3     -2.87502    3.50677  -0.820   0.4123    
+##                     Estimate Std. Error z value Pr(>|z|)    
+## (Intercept)          80.0000     9.1070   8.784  < 2e-16 ***
+## genMarvellous         6.6667     9.7150   0.686    0.493    
+## genVictory           -8.5000     9.7150  -0.875    0.382    
+## nf0.2                18.5000     7.6830   2.408    0.016 *  
+## nf0.4                34.6667     7.6830   4.512 6.42e-06 ***
+## nf0.6                44.8333     7.6830   5.835 5.37e-09 ***
+## genMarvellous:nf0.2   3.3333    10.8653   0.307    0.759    
+## genVictory:nf0.2     -0.3333    10.8653  -0.031    0.976    
+## genMarvellous:nf0.4  -4.1667    10.8653  -0.383    0.701    
+## genVictory:nf0.4      4.6667    10.8653   0.430    0.668    
+## genMarvellous:nf0.6  -4.6667    10.8653  -0.430    0.668    
+## genVictory:nf0.6      2.1667    10.8653   0.199    0.842    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 {% endhighlight %}
@@ -902,9 +902,9 @@ car::Anova(m_splitplot)
 ## 
 ## Response: yield
 ##           Chisq Df Pr(>Chisq)    
-## gen      3.5648  2     0.1682    
-## nf     135.6683  3     <2e-16 ***
-## gen:nf   2.1803  6     0.9024    
+## gen      2.9707  2     0.2264    
+## nf     113.0570  3     <2e-16 ***
+## gen:nf   1.8169  6     0.9357    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 {% endhighlight %}
@@ -925,19 +925,19 @@ cld(marginal_means_splitplot,
 
 
 {% highlight text %}
-##  gen        nf  emmean   SE df lower.CL upper.CL .group 
-##  Victory    0     71.5 8.31 57     46.7     96.3  a     
-##  GoldenRain 0     80.0 8.31 57     55.2    104.8  ab    
-##  Marvellous 0     86.7 8.31 57     61.9    111.4  abc   
-##  Victory    0.2   89.7 8.31 57     64.9    114.4  abcd  
-##  GoldenRain 0.2   98.5 8.31 57     73.7    123.3  abcde 
-##  Marvellous 0.2  108.5 8.31 57     83.7    133.3   bcdef
-##  Victory    0.4  110.8 8.31 57     86.1    135.6   bcdef
-##  GoldenRain 0.4  114.7 8.31 57     89.9    139.4    cdef
-##  Marvellous 0.4  117.2 8.31 57     92.4    141.9     def
-##  Victory    0.6  118.5 8.31 57     93.7    143.3      ef
-##  GoldenRain 0.6  124.8 8.31 57    100.1    149.6       f
-##  Marvellous 0.6  126.8 8.31 57    102.1    151.6      ef
+##  Victory    0     71.5 9.11 Inf      45.5      97.5  a      
+##  GoldenRain 0     80.0 9.11 Inf      54.0     106.0  ab     
+##  Marvellous 0     86.7 9.11 Inf      60.6     112.7  abcd   
+##  Victory    0.2   89.7 9.11 Inf      63.6     115.7  abc e  
+##  GoldenRain 0.2   98.5 9.11 Inf      72.5     124.5  abcdef 
+##  Marvellous 0.2  108.5 9.11 Inf      82.5     134.5   bcdefg
+##  Victory    0.4  110.8 9.11 Inf      84.8     136.9   bcdefg
+##  GoldenRain 0.4  114.7 9.11 Inf      88.6     140.7    cdefg
+##  Marvellous 0.4  117.2 9.11 Inf      91.1     143.2      efg
+##  Victory    0.6  118.5 9.11 Inf      92.5     144.5     d fg
+##  GoldenRain 0.6  124.8 9.11 Inf      98.8     150.9        g
+##  Marvellous 0.6  126.8 9.11 Inf     100.8     152.9       fg
+## 
 ## 
 ## Confidence level used: 0.95 
 ## Conf-level adjustment: sidak method for 12 estimates 
@@ -1001,12 +1001,14 @@ dd_temp$Time <- as.factor(dd_temp$Time)
 dd_temp$Temperature_F <- (dd_temp$Temperature_C *9/5) + 32  
 
 m_repeated <- glmmTMB(Temperature_C ~ Treatment * Time + ar1(1 + Time |Pen),
+              REML = TRUE,
               family = gaussian(link = "identity"),
               data = dd_temp)
 {% endhighlight %}
 
 {% highlight r %}
 m_repeated <- glmmTMB(Temperature_F ~ Treatment * Time + ar1(1 + Time |Pen) ,
+              REML = TRUE,
               family = gaussian(link = "identity"),
               data = dd_temp)
 {% endhighlight %}
@@ -1037,8 +1039,8 @@ summary(m_repeated)
 ## 
 ## Conditional model:
 ##  Groups   Name        Variance Std.Dev. Corr      
-##  Pen      (Intercept) 0.2612   0.5111   0.55 (ar1)
-##  Residual             0.2545   0.5045             
+##  Pen      (Intercept) 0.2813   0.5304   0.55 (ar1)
+##  Residual             0.2741   0.5236     
 ## Number of obs: 350, groups:  Pen, 70
 ## 
 ## Dispersion estimate for gaussian family (sigma^2): 0.255 
@@ -1189,6 +1191,7 @@ dd_fecal$Pen <- as.factor(dd_fecal$Pen)
 dd_fecal$Day <- as.factor(dd_fecal$Day)
 
 m_subsampling_repeated <- glmmTMB(dry_matter_perc ~ Trt * Day + ar1(1 + Day |Pig) + (1|Room/Pen),
+                                  REML = TRUE,
                                   data = dd_fecal)
 
 res <- simulateResiduals(m_subsampling_repeated, plot = TRUE)

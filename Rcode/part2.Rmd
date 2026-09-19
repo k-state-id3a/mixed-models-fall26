@@ -98,7 +98,7 @@ cld(marginal_means_splitplot,
 
 ```{r}
 options(contrasts = c("contr.treatment", "contr.poly"))
-url <- "https://raw.githubusercontent.com/k-state-id3a/mixed-models-fall26/refs/heads/newpart3/data/temperature_2.csv"
+url <- "https://raw.githubusercontent.com/k-state-id3a/mixed-models-fall25/refs/heads/newpart3/data/temperature_2.csv"
 
 dd_temp <- read.csv(url)
 dd_temp$Pig <- as.factor(dd_temp$Pig)
@@ -135,7 +135,7 @@ cld(marginal_means_temp,
 ## Example IV  
 
 ```{r}
-url <- "https://raw.githubusercontent.com/k-state-id3a/mixed-models-fall26/refs/heads/newpart3/data/fecal_dm.csv"
+url <- "https://raw.githubusercontent.com/k-state-id3a/mixed-models-fall25/refs/heads/newpart3/data/fecal_dm.csv"
 dd_fecal <- read.csv(url)
 dd_fecal$Pig <- as.factor(dd_fecal$Pig)
 dd_fecal$Trt <- as.factor(dd_fecal$Trt)
