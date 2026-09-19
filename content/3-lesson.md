@@ -125,22 +125,18 @@ The link function is applied to the expected value ($$E(\mathbf{y}) = \boldsymbo
 
 Example of link functions:
 
-+-------------------+----------------------------------------------------------+--------------------------------+-------------------------------------------------------------------------------------------------------------+
-| Link Function     | Equation                                                 | Use                            | Why                                                                                                         |
-+===================+==========================================================+================================+=============================================================================================================+
-| **Identity Link** | \\(g(\\mu) = \\mu\\)                                     | Normal dist.                   | \\(E(y)\\) can take any real value \\((-\\infty, \\; +\\infty)\\)                                           |
-+-------------------+----------------------------------------------------------+--------------------------------+-------------------------------------------------------------------------------------------------------------+
-| **Logit Link**    | \\(g(\\mu) = \\log\\left(\\frac{\\mu}{1-\\mu}\\right)\\) | Logistic, Beta, Binomial dist. | \\(E(y)\\) can take any values between 0 and 1. Maps \\((0, \\; 1) \\rightarrow (-\\infty, \\; +\\infty)\\) |
-+-------------------+----------------------------------------------------------+--------------------------------+-------------------------------------------------------------------------------------------------------------+
-| **Log Link**      | \\(g(\\mu) = \\log(\\mu)\\)                              | Poisson, Gamma dist.           | \\(E(y)\\) can take any positive values \\((\\mu \> 0)\\)                                                   |
-+-------------------+----------------------------------------------------------+--------------------------------+-------------------------------------------------------------------------------------------------------------+
+| Link Function | Equation | Use | Why |
+|:---|:---|:---|:---|
+| **Identity Link** | \(g(\mu) = \mu\) | Normal dist. | \(E(y)\) can take any real value \((-\infty, +\infty)\) |
+| **Logit Link** | \(g(\mu) = \log\left(\frac{\mu}{1-\mu}\right)\) | Logistic, Beta, Binomial dist. | \(E(y)\) can take values between 0 and 1. Maps \((0,1) \rightarrow (-\infty,+\infty)\) |
+| **Log Link** | \(g(\mu) = \log(\mu)\) | Poisson, Gamma dist. | \(E(y)\) can take any positive value \((\mu > 0)\) |
 
 - In all this cases, we estimate the link function, and then obtain the parameter using the inverse $$g^{-1}(\cdot)$$.
 
 - No one-size-fits-all recommendation.
 
 
-**As a contrast example: Log transformation of ** $$\mathbf{y}$$ **would:**
+**As a contrast example: Log transformation of y would:**
 
 - Change the structure of the residuals: from normal to log-normal.\
 - Change the target varaible from $$\mathbf{y}$$ to $$log(\mathbf{y})$$ \
