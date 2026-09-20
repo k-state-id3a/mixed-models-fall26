@@ -3,8 +3,19 @@ title: "Day 1 notes"
 output: html_document
 ---
 
+This document contains the code written in class on 09/19/2026.
+
+First, load the libraries 
+
+```{r}
+library(tidyverse)
+library(lme4)
+library(emmeans)
+```
+
 ## Demonstrating the analysis of an RCBD
 
+1. Load the data 
 ```{r}
 url <- "https://raw.githubusercontent.com/k-state-id3a/mixed-models-fall26/refs/heads/main/data/cochrancox_kfert.csv"
 df <- read.csv(url)
@@ -20,13 +31,13 @@ df |>
   theme_classic()
 ```
 
-
+2.1. Fit an all-fixed model.
 ```{r}
 m_fixed <- lm(yield ~ K2O_lbac + rep, data = df)
 summary(m_fixed)
 ```
 
-
+1.2. Fit a mixed-effects model. 
 ```{r}
 m_random <- lmer(yield ~ K2O_lbac + (1|rep), data = df)
 summary(m_random)
@@ -37,6 +48,7 @@ sigma(m_fixed)
 sigma(m_random)
 ```
 
+3. Check the marginal means for the K2O treatments, and note that the means do not differ between models 1 and 2, but the SE and CIs do. 
 
 ```{r}
 (mg_means_fixed <- emmeans(m_fixed, ~K2O_lbac, contr = list(c(1, 0, 0, 0, -1))))
@@ -45,11 +57,21 @@ sigma(m_random)
 
 ## Demonstrating the analysis of an RCBD - II
 
+1. Load the data 
+
 ```{r}
 df_rcbd <- agridat::gomez.seedrate
 df_rcbd$rate <- as.factor(df_rcbd$rate)
 str(df_rcbd)
+```
 
+2. Fit three models: 
+
+- No blocks (we used this one to demonstrate how blocks increase the precision in the results)
+- Blocks as fixed 
+- Blocks as random 
+
+```{r}
 m1_noblocks <- lm(yield ~ 1 + rate, data = df_rcbd)
 
 m1_fixed <- lm(yield ~ 1 + rate + rep, data = df_rcbd)
@@ -59,10 +81,15 @@ m1_random <- lmer(yield ~ 1 + rate + (1|rep), data = df_rcbd)
 getME(m1_random, "b")
 ```
 
+Compare the $\sigma^2_\varepsilon$
 ```{r}
+sigma(m1_noblocks)
 sigma(m1_fixed)
 VarCorr(m1_random)
 ```
+
+
+3. Compare the means 
 
 ```{r}
 emmeans(m1_noblocks, ~rate)
@@ -82,6 +109,8 @@ emmeans(m1_random, ~rate)
 
 (split-plot in an RCBD)
 
+1. Load the data 
+
 ```{r}
 dat <- agridat::yates.oats
 dat$nf <- factor(dat$nitro)
@@ -89,6 +118,7 @@ dat$nf <- factor(dat$nitro)
 str(dat)
 ```
 
+2. Fit the model. Remember this is a split-plot in an RCBD with gen in the whole plot and nitrogen in the subplot. 
 ```{r}
 m2 <- lmer(yield ~ 1 + gen + nf + gen:nf +
              (1|block) + (1|block:gen) ,
@@ -98,9 +128,13 @@ hist(resid(m2))
 plot(predict(m2), resid(m2))
 ```
 
+3.1. Check out how, when we use mixed models, the degrees of freedom are "automatically" adjusted. 
+
 ```{r}
 car::Anova(m2, test.statistic = "F")
 ```
+
+3.2. Check out DF and SE for the factors in the whole plot and in the split plot. Remember that there are more true reps for the factor in the split-plot.  
 
 ```{r}
 emmeans(m2, ~gen, contr = list(c(1, -1, 0)))
@@ -109,7 +143,7 @@ emmeans(m2, ~nf, contr = list(c(1, -1, 0, 0)))
 
 ## Demonstrating the analysis of a repeated measures design
 
-
+1. Load the data 
 ```{r}
 options(contrasts = c("contr.treatment", "contr.poly"))
 url <- "https://raw.githubusercontent.com/k-state-id3a/mixed-models-fall26/refs/heads/main/data/temperature_2.csv"
@@ -122,17 +156,17 @@ dd_temp$Time <- as.factor(dd_temp$Time)
 dd_temp$Temperature_F <- (dd_temp$Temperature_C *9/5) + 32
 ```
 
+1.1. How many pigs per EU? Just one (n column). 
 ```{r}
 dd_temp |> 
   group_by(Treatment, Pen, Time) |> 
   summarise(n())
 ```
 
+2.1. Fit the model with a Compound symmetry covariance structure. 
 ```{r}
-str(dd_temp)
-
 m3 <- lmer(Temperature_F ~ Treatment * Time + (1|Pen),
-           data = dd_temp)
+           data = dd_temp |> arrange(Pen, Time))
 summary(m3)
 
 
@@ -151,13 +185,14 @@ Z %*% G %*% t(Z) %>%
   mutate(x = as.numeric(x), y= as.numeric(y)) %>% 
   
   left_join(
-  diag(sigma(m3)^2, nrow = nrow(df_n_ss)) %>% 
+  diag(sigma(m3)^2, nrow = nrow(dd_temp)) %>% 
   as.data.frame() %>% 
   rownames_to_column("x") %>% 
-  pivot_longer(cols = V1:V158, names_to = "y") %>%
+  pivot_longer(cols = V1:V350, names_to = "y") %>%
   mutate(y = str_replace(y, "V", "") %>% as.numeric(),
          x = as.numeric(x)) %>% 
   rename(s2 = value)) %>% 
+  filter(abs(x)<51, abs(y)<51) |> 
 
   ggplot(aes(-x,y))+
   geom_tile(aes(fill = value+s2))+
@@ -168,10 +203,13 @@ Z %*% G %*% t(Z) %>%
         legend.position = "none", 
         panel.grid = element_blank(), 
         axis.title = element_blank(), 
-        axis.ticks = element_blank())
+        axis.ticks = element_blank())+
+  labs(title = "zoom-in for a variance-covariance\nmatrix for a CS")
 
 ```
 
+
+3. Try other covariance structures. 
 ```{r}
 m_repeated <- glmmTMB(Temperature_C ~ Treatment * Time + cs(0 + Time |Pen),
               family = gaussian(link = "identity"),
@@ -209,23 +247,3 @@ m_repeated
 
 
 
-
-
-
-
-
-
-
-```{r}
-m_repeated <- glmmTMB(Temperature_C ~ Treatment * Time + ar1(0 + Time |Pen),
-              family = gaussian(link = "identity"),
-              REML = TRUE,
-              data = dd_temp)
-
-m_repeated <- glmmTMB(Temperature_F ~ Treatment * Time + ar1(0 + Time |Pen) ,
-              family = gaussian(link = "identity"),
-              REML = TRUE,
-              data = dd_temp)
-
-res_repeated <- DHARMa::simulateResiduals(m_repeated, plot = TRUE)
-```
