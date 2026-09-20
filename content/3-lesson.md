@@ -796,9 +796,9 @@ Where:
 
 ### Major benefits we get from mixed models
 
-- Information is **shared** across groups\
-- More robust under unbalanced scenarios\
-- Very helpful to handle missing data\
+- Information is **shared** across groups 
+- More robust under unbalanced scenarios 
+- Very helpful to handle missing data 
 - No need to average across observations - information is preserved!
 
 > I want to convince the reader of something that appears unreasonable: *multilevel regression deserves to be the default form of regression.* Papers that do not use multilevel models should have to justify not using a multilevel approach. Certainly some data and contexts do not need the multilevel treatment. But most contemporary studies in the social and natural sciences, whether experimental or not, would benefit from it. Perhaps the most important reason is that even well-controlled treatments interact with unmeasured aspects of the individuals, groups, or populations studied. This leads to variation in treatment effects, in which individuals or groups vary in how they respond to the same circumstance. Multilevel models attempt to quantify the extent of this variation, as well as identify which units in the data responded in which ways.
@@ -812,9 +812,9 @@ Where:
 ## What's next
 
 - Check out the books in the [Resources](5-resources) tab.
-- We will be repeating this workshop in the future! Tell your friends and family!\
+- We will be repeating this workshop in the future! Tell your friends and family! 
 - Josefina will be teaching STAT 720 next Summer (2027) and STAT 870 next Fall.
-- Feel free to reach out with questions/concerns/more advanced questions.\
+- Feel free to reach out with questions/concerns/more advanced questions. 
 - Please answer this [survey](https://forms.gle/nxGsGv7tvf5LTaKF9) to help us improve future editions of the same workshop/create a follow-up based on demand.
 
 ------------------------------------------------------------------------
