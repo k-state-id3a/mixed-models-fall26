@@ -1,0 +1,231 @@
+---
+title: "Day 1 notes"
+output: html_document
+---
+
+## Demonstrating the analysis of an RCBD
+
+```{r}
+url <- "https://raw.githubusercontent.com/k-state-id3a/mixed-models-fall26/refs/heads/main/data/cochrancox_kfert.csv"
+df <- read.csv(url)
+
+df$rep <- as.factor(df$rep)
+df$K2O_lbac <- as.factor(df$K2O_lbac)
+```
+
+```{r}
+df |> 
+  ggplot(aes(K2O_lbac, yield))+
+  geom_point()+
+  theme_classic()
+```
+
+
+```{r}
+m_fixed <- lm(yield ~ K2O_lbac + rep, data = df)
+summary(m_fixed)
+```
+
+
+```{r}
+m_random <- lmer(yield ~ K2O_lbac + (1|rep), data = df)
+summary(m_random)
+```
+
+```{r}
+sigma(m_fixed)
+sigma(m_random)
+```
+
+
+```{r}
+(mg_means_fixed <- emmeans(m_fixed, ~K2O_lbac, contr = list(c(1, 0, 0, 0, -1))))
+(mg_means_random <- emmeans(m_random, ~K2O_lbac, contr = list(c(1, 0, 0, 0, -1))))
+```
+
+## Demonstrating the analysis of an RCBD - II
+
+```{r}
+df_rcbd <- agridat::gomez.seedrate
+df_rcbd$rate <- as.factor(df_rcbd$rate)
+str(df_rcbd)
+
+m1_noblocks <- lm(yield ~ 1 + rate, data = df_rcbd)
+
+m1_fixed <- lm(yield ~ 1 + rate + rep, data = df_rcbd)
+emmeans(m1_fixed, ~rep)
+
+m1_random <- lmer(yield ~ 1 + rate + (1|rep), data = df_rcbd)
+getME(m1_random, "b")
+```
+
+```{r}
+sigma(m1_fixed)
+VarCorr(m1_random)
+```
+
+```{r}
+emmeans(m1_noblocks, ~rate)
+```
+
+```{r}
+emmeans(m1_fixed, ~rate)
+```
+
+```{r}
+emmeans(m1_random, ~rate)
+```
+
+
+
+## Demonstrating the analysis of a split-plot design
+
+(split-plot in an RCBD)
+
+```{r}
+dat <- agridat::yates.oats
+dat$nf <- factor(dat$nitro)
+
+str(dat)
+```
+
+```{r}
+m2 <- lmer(yield ~ 1 + gen + nf + gen:nf +
+             (1|block) + (1|block:gen) ,
+           data = dat)
+
+hist(resid(m2))
+plot(predict(m2), resid(m2))
+```
+
+```{r}
+car::Anova(m2, test.statistic = "F")
+```
+
+```{r}
+emmeans(m2, ~gen, contr = list(c(1, -1, 0)))
+emmeans(m2, ~nf, contr = list(c(1, -1, 0, 0)))
+```
+
+## Demonstrating the analysis of a repeated measures design
+
+
+```{r}
+options(contrasts = c("contr.treatment", "contr.poly"))
+url <- "https://raw.githubusercontent.com/k-state-id3a/mixed-models-fall26/refs/heads/main/data/temperature_2.csv"
+library(glmmTMB)
+dd_temp <- read.csv(url)
+dd_temp$Pig <- as.factor(dd_temp$Pig)
+dd_temp$Treatment <- as.factor(dd_temp$Treatment)
+dd_temp$Pen <- as.factor(dd_temp$Pen)
+dd_temp$Time <- as.factor(dd_temp$Time)
+dd_temp$Temperature_F <- (dd_temp$Temperature_C *9/5) + 32
+```
+
+```{r}
+dd_temp |> 
+  group_by(Treatment, Pen, Time) |> 
+  summarise(n())
+```
+
+```{r}
+str(dd_temp)
+
+m3 <- lmer(Temperature_F ~ Treatment * Time + (1|Pen),
+           data = dd_temp)
+summary(m3)
+
+
+Z <-  getME(m3, "Z") 
+sigma2_s <- as.data.frame(VarCorr(m3))[1,4]
+G <- diag(c(rep(sigma2_s, length(getME(m3, "b") ))))
+```
+
+
+```{r}
+Z %*% G %*% t(Z) %>%
+  as.matrix() %>% 
+  as.data.frame() %>% 
+  rownames_to_column("x") %>% 
+  pivot_longer(cols = `1`:`350`, names_to = "y") %>%
+  mutate(x = as.numeric(x), y= as.numeric(y)) %>% 
+  
+  left_join(
+  diag(sigma(m3)^2, nrow = nrow(df_n_ss)) %>% 
+  as.data.frame() %>% 
+  rownames_to_column("x") %>% 
+  pivot_longer(cols = V1:V158, names_to = "y") %>%
+  mutate(y = str_replace(y, "V", "") %>% as.numeric(),
+         x = as.numeric(x)) %>% 
+  rename(s2 = value)) %>% 
+
+  ggplot(aes(-x,y))+
+  geom_tile(aes(fill = value+s2))+
+  theme_minimal()+
+  scale_fill_viridis_c()+
+  theme(aspect.ratio = 1, 
+        axis.text = element_blank(), 
+        legend.position = "none", 
+        panel.grid = element_blank(), 
+        axis.title = element_blank(), 
+        axis.ticks = element_blank())
+
+```
+
+```{r}
+m_repeated <- glmmTMB(Temperature_C ~ Treatment * Time + cs(0 + Time |Pen),
+              family = gaussian(link = "identity"),
+              REML = TRUE,
+              data = dd_temp)
+
+summary(m_repeated)
+
+
+m_repeated <- glmmTMB(Temperature_C ~ Treatment * Time + ar1(0 + Time |Pen),
+              family = gaussian(link = "identity"),
+              REML = TRUE,
+              data = dd_temp)
+DHARMa::simulateResiduals(m_repeated, plot = T)
+
+m_repeated <- glmmTMB(Temperature_C ~ Treatment * Time + us(0 + Time |Pen),
+              family = gaussian(link = "identity"),
+              REML = TRUE,
+              data = dd_temp)
+DHARMa::simulateResiduals(m_repeated, plot = T)
+
+
+
+m_repeated <- glmmTMB(Temperature_F ~ Treatment * Time + us(0 + Time |Pen),
+              family = gaussian(link = "identity"),
+              REML = TRUE,
+              data = dd_temp)
+DHARMa::simulateResiduals(m_repeated, plot = T)
+```
+
+```{r}
+m_repeated
+```
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+m_repeated <- glmmTMB(Temperature_C ~ Treatment * Time + ar1(0 + Time |Pen),
+              family = gaussian(link = "identity"),
+              REML = TRUE,
+              data = dd_temp)
+
+m_repeated <- glmmTMB(Temperature_F ~ Treatment * Time + ar1(0 + Time |Pen) ,
+              family = gaussian(link = "identity"),
+              REML = TRUE,
+              data = dd_temp)
+
+res_repeated <- DHARMa::simulateResiduals(m_repeated, plot = TRUE)
+```
