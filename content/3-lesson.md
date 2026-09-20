@@ -766,7 +766,7 @@ Hierarchical model: Parameters or observations are organized into levels.
 - For observations: Block -> Plot within block -> Plant within a plot.
   - Observations grouped at different levels -> The model accounts for variability associated with each level!
 
-- For parameters: $$y_i \vert \u_j \sim N(\mu_0 + t_i + u_j, \; \sigma^2)$$ and $$u_j \sim N(0, \; \sgima_u^2)$$.
+- For parameters: $$y_i \vert u_j \sim N(\mu_0 + t_i + u_j, \; \sigma^2)$$ and $$u_j \sim N(0, \; \sigma_u^2)$$.
 
 In mixed models, both can happen at the same time.
 
